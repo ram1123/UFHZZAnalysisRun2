@@ -1,8 +1,8 @@
 git clone https://github.com/bachtis/Analysis.git -b KaMuCa_V4 KaMuCa
 
-git cms-merge-topic guitargeek:ElectronID_MVA2017_V2_HZZ_940pre3
+git cms-merge-topic VBF-HZZ:guitargeek/ElectronID_MVA2017_V2_HZZ_940pre3
 rm -rf RecoEgamma/ElectronIdentification/data
-git clone -b ElectronID_MVA2017_V2 https://github.com/guitargeek/RecoEgamma-ElectronIdentification RecoEgamma/ElectronIdentification/data/
+git clone -b ElectronID_MVA2017_V2 git@github.com:VBF-HZZ/RecoEgamma-ElectronIdentification-data.git RecoEgamma/ElectronIdentification/data/
 git clone -b 94X https://github.com/VBF-HZZ/UFHZZAnalysisRun2.git
 git cms-merge-topic cms-egamma:EGM_94X_v1
 cd EgammaAnalysis/ElectronTools/data

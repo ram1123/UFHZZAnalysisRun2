@@ -872,7 +872,7 @@ UFHZZ4LAna::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         iEvent.getByToken(htxsSrc_,htxs);
         stage0cat = htxs->stage0_cat;
         stage1cat = htxs->stage1_cat_pTjet30GeV;
-        stage1p1cat = htxs->stage1p1_cat;
+        //stage1p1cat = htxs->stage1p1_cat;
         if (verbose) cout<<"stage1cat "<<stage1cat<<endl;
     }
 

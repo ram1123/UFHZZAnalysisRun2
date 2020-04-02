@@ -1935,8 +1935,8 @@ float HZZ4LHelper::get_bTagEffi(float _pt_jet, float _eta_jet, TH2F* hbTagEffi)
     //float = pt = std::min(jet.pt(), 599.0);
     //float eta = jet.eta();
     float pt = std::min(_pt_jet, (float)599.0);
-    float eta = _eta_jet;
-    return hbTagEffi->GetBinContent(hbTagEffi->FindBin(eta,pt));
+    float aeta = abs(_eta_jet);
+    return hbTagEffi->GetBinContent(hbTagEffi->FindBin(pt,aeta));
 }
 
 

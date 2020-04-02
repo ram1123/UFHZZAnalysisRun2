@@ -38,7 +38,7 @@ process.source = cms.Source("PoolSource",fileNames = myfilelist,
                             )
 
 process.TFileService = cms.Service("TFileService",
-                                  fileName = cms.string("Sync_1031_2018_ttH_v2.root")##
+                                  fileName = cms.string("Sync_1031_2018_ttH_v2_.root")##
 )
 
 # clean muons by segments 
@@ -184,7 +184,8 @@ import os
 # Jet Energy Corrections
 from CondCore.DBCommon.CondDBSetup_cfi import *
 #era = "Autumn18_V3_MC"
-era = "Autumn18_V8_MC"
+#era = "Autumn18_V8_MC"
+era = "Autumn18_V19_MC"
 # for HPC
 dBFile = os.environ.get('CMSSW_BASE')+"/src/UFHZZAnalysisRun2/UFHZZ4LAna/data/"+era+".db"
 # for crab
@@ -255,7 +256,8 @@ process.slimmedJetsJEC.userData.userInts.src += ['pileupJetIdUpdated:fullId']
 # JER
 process.load("JetMETCorrections.Modules.JetResolutionESProducer_cfi")
 # for hpc
-dBJERFile = os.environ.get('CMSSW_BASE')+"/src/UFHZZAnalysisRun2/UFHZZ4LAna/data/Autumn18_V1_MC.db"
+#dBJERFile = os.environ.get('CMSSW_BASE')+"/src/UFHZZAnalysisRun2/UFHZZ4LAna/data/Autumn18_V1_MC.db"
+dBJERFile = os.environ.get('CMSSW_BASE')+"/src/UFHZZAnalysisRun2/UFHZZ4LAna/data/Autumn18_V7_MC.db"
 ## for crab
 #dBFile = "src/UFHZZAnalysisRun2/UFHZZ4LAna/data/Autumn18_V1_MC.db"
 process.jer = cms.ESSource("PoolDBESSource",
@@ -264,17 +266,17 @@ process.jer = cms.ESSource("PoolDBESSource",
         toGet = cms.VPSet(
             cms.PSet(
                 record = cms.string('JetResolutionRcd'),
-                tag    = cms.string('JR_Autumn18_V1_MC_PtResolution_AK4PFchs'),
+                tag    = cms.string('JR_Autumn18_V7_MC_PtResolution_AK4PFchs'),
                 label  = cms.untracked.string('AK4PFchs_pt')
                 ),
             cms.PSet(
                 record = cms.string('JetResolutionRcd'),
-                tag    = cms.string('JR_Autumn18_V1_MC_PhiResolution_AK4PFchs'),
+                tag    = cms.string('JR_Autumn18_V7_MC_PhiResolution_AK4PFchs'),
                 label  = cms.untracked.string('AK4PFchs_phi')
                 ),
             cms.PSet(
                 record = cms.string('JetResolutionScaleFactorRcd'),
-                tag    = cms.string('JR_Autumn18_V1_MC_SF_AK4PFchs'),
+                tag    = cms.string('JR_Autumn18_V7_MC_SF_AK4PFchs'),
                 label  = cms.untracked.string('AK4PFchs')
                 )
             )

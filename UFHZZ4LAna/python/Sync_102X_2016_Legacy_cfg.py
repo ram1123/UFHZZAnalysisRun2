@@ -31,7 +31,7 @@ process.source = cms.Source("PoolSource",fileNames = myfilelist,
                             )
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string("Sync_102X_2016_v2.root")
+                                   fileName = cms.string("Sync_102X_2016_v2_.root")
 )
 
 # clean muons by segments 
@@ -257,6 +257,48 @@ process.jer = cms.ESSource("PoolDBESSource",
         )
 process.es_prefer_jer = cms.ESPrefer('PoolDBESSource', 'jer')
 
+from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
+
+if ('true'):
+    # JEC corrections
+    jecLevels = None
+    jecLevels = [ 'L1FastJet', 'L2Relative', 'L3Absolute' ]
+    
+    btagVector = [
+        'pfDeepFlavourJetTags:probb',
+        'pfDeepFlavourJetTags:probbb',
+        'pfDeepFlavourJetTags:problepb',
+        'pfDeepFlavourJetTags:probc',
+        'pfDeepFlavourJetTags:probuds',
+        'pfDeepFlavourJetTags:probg',
+        'pfDeepCSVJetTags:probudsg',
+        'pfDeepCSVJetTags:probb',
+        'pfDeepCSVJetTags:probc',
+        'pfDeepCSVJetTags:probbb'
+    ]
+
+    updateJetCollection(
+        process,
+        jetSource = cms.InputTag('slimmedJets'),
+        pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+        svSource = cms.InputTag('slimmedSecondaryVertices'),
+        jetCorrections = ('AK4PFchs', cms.vstring(jecLevels), 'None'),
+        btagDiscriminators = btagVector,
+        postfix = 'WithDeepInfo'
+    )
+
+    process.jetSequence = cms.Sequence(process.patJetCorrFactorsWithDeepInfo 
+                                       *process.updatedPatJetsWithDeepInfo 
+                                       *process.pfImpactParameterTagInfosWithDeepInfo 
+                                       *process.pfInclusiveSecondaryVertexFinderTagInfosWithDeepInfo 
+                                       *process.pfDeepCSVTagInfosWithDeepInfo
+                                       *process.pfDeepCSVJetTagsWithDeepInfo 
+                                       *process.pfDeepFlavourTagInfosWithDeepInfo
+                                       *process.pfDeepFlavourJetTagsWithDeepInfo 
+                                       *process.patJetCorrFactorsTransientCorrectedWithDeepInfo 
+                                       *process.updatedPatJetsTransientCorrectedWithDeepInfo
+    )
+
 
 #QGTag
 process.load("CondCore.CondDB.CondDB_cfi")
@@ -415,6 +457,7 @@ process.p = cms.Path(process.fsrPhotonSequence*
                      process.egmPhotonIDSequence*
                      process.egammaPostRecoSeq*
                      process.calibratedPatElectrons*
+                     process.jetSequence*
                      process.jetCorrFactors*
                      process.pileupJetIdUpdated*
                      process.slimmedJetsJEC*

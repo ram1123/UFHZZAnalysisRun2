@@ -323,7 +323,6 @@ private:
     vector<float>  jet_axis2, jet_ptD; vector<int> jet_mult;
     vector<float>  jet_relpterr; vector<float>  jet_phierr;
     vector<float>  jet_bTagEffi;
-    vector<float>  jet_bTagEffi_;
     vector<float>  jet_cTagEffi;
     vector<float>  jet_udsgTagEffi;
     vector<int>    jet_jesup_iscleanH4l;
@@ -1070,7 +1069,6 @@ UFHZZ4LAna::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     jet_QGTagger.clear(); jet_QGTagger_jesup.clear(); jet_QGTagger_jesdn.clear(); 
     jet_relpterr.clear(); jet_phierr.clear();
     jet_bTagEffi.clear();
-    jet_bTagEffi_.clear();
     jet_cTagEffi.clear();
     jet_udsgTagEffi.clear();
     jet_axis2.clear(); jet_ptD.clear(); jet_mult.clear();
@@ -3558,7 +3556,6 @@ void UFHZZ4LAna::bookPassedEventTree(TString treeName, TTree *tree)
     tree->Branch("jet_phi",&jet_phi_float);
     tree->Branch("jet_phierr",&jet_phierr);
     tree->Branch("jet_bTagEffi",&jet_bTagEffi);
-    tree->Branch("jet_bTagEffi_",&jet_bTagEffi_);
     tree->Branch("jet_cTagEffi",&jet_cTagEffi);
     tree->Branch("jet_udsgTagEffi",&jet_udsgTagEffi);
     tree->Branch("jet_mass",&jet_mass_float);    
@@ -3978,8 +3975,8 @@ void UFHZZ4LAna::setTreeVariables( const edm::Event& iEvent, const edm::EventSet
             jet_mult.push_back(goodJetmult[k]);
             jet_relpterr.push_back(relpterr);
             jet_phierr.push_back(phierr);
-            jet_bTagEffi.push_back(helper.get_bTagEffi(goodJets[k].pt(), goodJets[k].eta(), hbTagEffi));
-            jet_bTagEffi_.push_back(helper.get_bTagEffi(jet_jer->Pt(), jet_jer->Eta(), hbTagEffi));
+            ///jet_bTagEffi.push_back(helper.get_bTagEffi(goodJets[k].pt(), goodJets[k].eta(), hbTagEffi));
+            jet_bTagEffi.push_back(helper.get_bTagEffi(jet_jer->Pt(), jet_jer->Eta(), hbTagEffi));
             jet_cTagEffi.push_back(helper.get_bTagEffi(jet_jer->Pt(), jet_jer->Eta(), hcTagEffi));
             jet_udsgTagEffi.push_back(helper.get_bTagEffi(jet_jer->Pt(), jet_jer->Eta(), hudsgTagEffi));
             //if (goodJets[k].bDiscriminator("pfDeepCSVDiscriminatorsJetTags:BvsAll")>BTagCut && coin>(1.0-jet_scalefactor)) jet_bTagEffi.push_back(helper.get_bTagEffi(goodJets[k].pt(), goodJets[k].eta(), hbTagEffi));

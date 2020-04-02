@@ -10,11 +10,9 @@ cd -
 git cms-merge-topic cms-egamma:EgammaPostRecoTools_dev
 #scram b -j 8
 git cms-addpkg GeneratorInterface/RivetInterface
-#(cd GeneratorInterface/RivetInterface; git checkout CMSSW_10_2_X)
 git cms-addpkg SimDataFormats/HTXS
 cp /raid/raid9/qguo/Run2/after/Run2_2/new/CMSSW_10_2_18/src/SimDataFormats/HTXS/interface/HiggsTemplateCrossSections.h SimDataFormats/HTXS/interface/HiggsTemplateCrossSections.h 
 cp /raid/raid9/qguo/Run2/after/Run2_2/new/CMSSW_10_2_18/src/GeneratorInterface/RivetInterface/src/HiggsTemplateCrossSections.cc GeneratorInterface/RivetInterface/src/HiggsTemplateCrossSections.cc 
-#(cd SimDataFormats/HTXS; git checkout CMSSW_10_2_X)
 #cp /raid/raid7/dsperka/Run2/HZZ4l/CMSSW_10_2_5/src/SimDataFormats/HTXS/interface/HiggsTemplateCrossSections.h SimDataFormats/HTXS/interface/
 #cp /raid/raid7/dsperka/Run2/HZZ4l/CMSSW_10_2_5/src/GeneratorInterface/RivetInterface/src/HiggsTemplateCrossSections.cc GeneratorInterface/RivetInterface/src/
 #cp /raid/raid7/dsperka/Run2/HZZ4l/CMSSW_10_2_5/src/GeneratorInterface/RivetInterface/plugins/HTXSRivetProducer.cc GeneratorInterface/RivetInterface/plugins/

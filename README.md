@@ -4,15 +4,15 @@ HZZ Analyzer for CMS Run2
 
 To install:
 
-cmsrel CMSSW_10_2_15
+cmsrel CMSSW_10_2_18
 
-cd CMSSW_10_2_15/src
+cd CMSSW_10_2_18/src
 
 cmsenv
 
 git cms-init
 
-git clone -b FullRun_II https://github.com/VBF-HZZ/UFHZZAnalysisRun2.git
+git clone -b 102_18 https://github.com/VBF-HZZ/UFHZZAnalysisRun2.git
 
 cp UFHZZAnalysisRun2/install*.sh .
 
@@ -22,9 +22,9 @@ you can choose to run install.sh or run install_2.sh
 ------or------
 ./install.sh
 
-cmsRun UFHZZAnalysisRun2/UFHZZ4LAna/python/Sync_102X_2018_Legacy_cfg.py
-cmsRun UFHZZAnalysisRun2/UFHZZ4LAna/python/Sync_102X_2017_Legacy_cfg.py
-cmsRun UFHZZAnalysisRun2/UFHZZ4LAna/python/Sync_102X_2016_Legacy_cfg.py
+cmsRun UFHZZAnalysisRun2/UFHZZ4LAna/python/Sync_102X_2018_Legacy_v2_cfg.py
+cmsRun UFHZZAnalysisRun2/UFHZZ4LAna/python/Sync_102X_2017_Legacy_v2_cfg.py
+cmsRun UFHZZAnalysisRun2/UFHZZ4LAna/python/Sync_102X_2016_Legacy_v2_cfg.py
 
 cp UFHZZAnalysisRun2/Utilities/crab/* .
 
@@ -47,9 +47,9 @@ This will start an infinite loop of running crab resubmit on all of your tasks, 
 
 python manageCrabTask.py -t resultsAna_Data_M17_Feb19 -p
 
-UFHZZ4LAna/python/templateMC_102X_Legacy16_4l_cfg.py
-UFHZZ4LAna/python/templateMC_102X_Legacy17_4l_cfg.py
-UFHZZ4LAna/python/templateMC_102X_Legacy18_4l_cfg.py
-UFHZZ4LAna/python/templateData_102X_Legacy16_3l_cfg.py
-UFHZZ4LAna/python/templateData_102X_Legacy17_3l_cfg.py
-UFHZZ4LAna/python/templateData_102X_Legacy18_3l_cfg.py
+UFHZZ4LAna/python/templateMC_102X_Legacy16_4l_v2_cfg.py
+UFHZZ4LAna/python/templateMC_102X_Legacy17_4l_v2_cfg.py
+UFHZZ4LAna/python/templateMC_102X_Legacy18_4l_v2_cfg.py
+UFHZZ4LAna/python/templateData_102X_Legacy16_3l_v2_cfg.py
+UFHZZ4LAna/python/templateData_102X_Legacy17_3l_v2_cfg.py
+UFHZZ4LAna/python/templateData_102X_Legacy18_3l_v2_cfg.py

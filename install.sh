@@ -10,23 +10,27 @@ cd -
 git cms-merge-topic cms-egamma:EgammaPostRecoTools_dev
 #scram b -j 8
 git cms-addpkg GeneratorInterface/RivetInterface
+#(cd GeneratorInterface/RivetInterface; git checkout CMSSW_10_2_X)
 git cms-addpkg SimDataFormats/HTXS
-cp /raid/raid7/dsperka/Run2/HZZ4l/CMSSW_10_2_5/src/SimDataFormats/HTXS/interface/HiggsTemplateCrossSections.h SimDataFormats/HTXS/interface/
-cp /raid/raid7/dsperka/Run2/HZZ4l/CMSSW_10_2_5/src/GeneratorInterface/RivetInterface/src/HiggsTemplateCrossSections.cc GeneratorInterface/RivetInterface/src/
-cp /raid/raid7/dsperka/Run2/HZZ4l/CMSSW_10_2_5/src/GeneratorInterface/RivetInterface/plugins/HTXSRivetProducer.cc GeneratorInterface/RivetInterface/plugins/
-git clone https://github.com/mkovac/MuonMVAReader.git MuonMVAReader
+cp /raid/raid9/qguo/Run2/after/Run2_2/new/CMSSW_10_2_18/src/SimDataFormats/HTXS/interface/HiggsTemplateCrossSections.h SimDataFormats/HTXS/interface/HiggsTemplateCrossSections.h 
+cp /raid/raid9/qguo/Run2/after/Run2_2/new/CMSSW_10_2_18/src/GeneratorInterface/RivetInterface/src/HiggsTemplateCrossSections.cc GeneratorInterface/RivetInterface/src/HiggsTemplateCrossSections.cc 
+#(cd SimDataFormats/HTXS; git checkout CMSSW_10_2_X)
+#cp /raid/raid7/dsperka/Run2/HZZ4l/CMSSW_10_2_5/src/SimDataFormats/HTXS/interface/HiggsTemplateCrossSections.h SimDataFormats/HTXS/interface/
+#cp /raid/raid7/dsperka/Run2/HZZ4l/CMSSW_10_2_5/src/GeneratorInterface/RivetInterface/src/HiggsTemplateCrossSections.cc GeneratorInterface/RivetInterface/src/
+#cp /raid/raid7/dsperka/Run2/HZZ4l/CMSSW_10_2_5/src/GeneratorInterface/RivetInterface/plugins/HTXSRivetProducer.cc GeneratorInterface/RivetInterface/plugins/
+#git clone https://github.com/mkovac/MuonMVAReader.git MuonMVAReader
 git clone https://github.com/bachtis/Analysis.git -b KaMuCa_V4 KaMuCa
-git clone -b FullRun_II https://github.com/VBF-HZZ/UFHZZAnalysisRun2.git
+#git clone -b FullRun_II https://github.com/VBF-HZZ/UFHZZAnalysisRun2.git
 #MELA Analytics
 git clone https://github.com/usarica/MelaAnalytics.git
-(cd MelaAnalytics; git checkout -b from-v14 v1.4)
+(cd MelaAnalytics; git checkout -b from-v19 v1.9)
 
 #MELA
 git clone https://github.com/cms-analysis/HiggsAnalysis-ZZMatrixElement.git ZZMatrixElement
-(cd ZZMatrixElement; git checkout -b from-v220 v2.2.0)
+(cd ZZMatrixElement; git checkout -b from-v223 v2.2.3)
 # replace ZZMatrixElement/MELA/setup.sh -j 8
 pushd ${CMSSW_BASE}/src/ZZMatrixElement/MELA/COLLIER/
-  pkgname="collier-1.2"
+  pkgname="collier-1.2.0"
   pkgdir="COLLIER-1.2"
   tarname=$pkgname".tar.gz"
   tarweb="https://www.hepforge.org/archive/collier/"$tarname

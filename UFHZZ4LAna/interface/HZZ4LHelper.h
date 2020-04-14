@@ -407,7 +407,7 @@ std::vector<pat::Muon> HZZ4LHelper::goodMuons2015_noIso_noPf(std::vector<pat::Mu
     using namespace std;
     vector<pat::Muon> bestMuons;
     /********** M U O N  C U T S **********/
-    sip3dCut = 99999;
+    //sip3dCut = 99999;
     double muEtaCut = 2.4;
     double dxyCut = 0.5;
     double dzCut = 1;

@@ -249,7 +249,7 @@ private:
 
 
     // Event Weights
-    float genWeight, pileupWeight, pileupWeightUp, pileupWeightDn, dataMCWeight, eventWeight;
+    float genWeight, pileupWeight, pileupWeightUp, pileupWeightDn, dataMCWeight, eventWeight, prefiringWeight;
     float k_ggZZ, k_qqZZ_qcd_dPhi, k_qqZZ_qcd_M, k_qqZZ_qcd_Pt, k_qqZZ_ewk;
     // pdf weights                                                                   
     vector<float> qcdWeights;
@@ -573,6 +573,7 @@ private:
     edm::EDGetTokenT<LHERunInfoProduct> lheRunInfoToken_;
     edm::EDGetTokenT<HTXS::HiggsClassification> htxsSrc_;
     //edm::EDGetTokenT<HZZFid::FiducialSummary> fidRivetSrc_;
+    edm::EDGetTokenT< double > prefweight_token_;
 
     // Configuration
     const float Zmass;
@@ -656,6 +657,7 @@ UFHZZ4LAna::UFHZZ4LAna(const edm::ParameterSet& iConfig) :
     lheInfoSrc_(consumes<LHEEventProduct>(iConfig.getUntrackedParameter<edm::InputTag>("lheInfoSrc"))),
     lheRunInfoToken_(consumes<LHERunInfoProduct,edm::InRun>(edm::InputTag("externalLHEProducer",""))),
     htxsSrc_(consumes<HTXS::HiggsClassification>(edm::InputTag("rivetProducerHTXS","HiggsClassification"))),
+    prefweight_token_(consumes< double >(edm::InputTag("prefiringweight:nonPrefiringProb"))),//2017 2017 need this. not for 2018
     //fidRivetSrc_(consumes<HZZFid::FiducialSummary>(edm::InputTag("rivetProducerHZZFid","FiducialSummary"))),
     Zmass(91.1876),
     mZ1Low(iConfig.getUntrackedParameter<double>("mZ1Low",40.0)),
@@ -985,6 +987,13 @@ UFHZZ4LAna::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      GENnjets_pt30_eta4p7Rivet = rivetfid->jets.size();
      if (rivetfid->jets.size()>0) GENpt_leadingjet_pt30_eta4p7Rivet = rivetfid->jets[0].Pt();
     */
+
+    edm::Handle< double > theprefweight;
+    iEvent.getByToken(prefweight_token_, theprefweight ) ;
+    if (year == 2016 || year == 2017)
+        prefiringWeight =(*theprefweight);
+    else if (year == 2018)
+        prefiringWeight =1.0;
 
     // ============ Initialize Variables ============= //
 
@@ -1941,7 +1950,7 @@ UFHZZ4LAna::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                     if (verbose) cout<<"checking jetid..."<<endl;
                     float jpumva=0.;
                     bool passPU;
-                    if (doJEC) {
+                    if (doJEC && (year==2017 || year==2018)) {
                         passPU = bool(jet.userInt("pileupJetIdUpdated:fullId") & (1 << 0));
                         jpumva=jet.userFloat("pileupJetIdUpdated:fullDiscriminant");
                     } else {
@@ -1972,7 +1981,10 @@ UFHZZ4LAna::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                     if (verbose) cout<<"pt: "<<jet.pt()<<" eta: "<<jet.eta()<<" passPU: "<<passPU
                                      <<" jetid: "<<jetHelper.patjetID(jet,year)<<endl;
                     
-                    if( jetHelper.patjetID(jet,year)>=jetIDLevel && (passPU || !doPUJetID) ) {
+                    ///cut is seperated into two part since we will apply corrected pt into passPU|| jet.pt()>50; another part in L3916
+                    //cut = cms.string("pt>20 && abs(eta)<4.7 && userFloat('JetID') && (userFloat('PUjetID') || pt>50)"),
+                    //if( jetHelper.patjetID(jet,year)>=jetIDLevel && (passPU || !doPUJetID || jet.pt()>50) ) {
+                    if( jetHelper.patjetID(jet,year)>=jetIDLevel ) {  
                         
                         if (verbose) cout<<"passed pf jet id and pu jet id"<<endl;
                         
@@ -3401,6 +3413,7 @@ void UFHZZ4LAna::bookPassedEventTree(TString treeName, TTree *tree)
     tree->Branch("pileupWeightDn",&pileupWeightDn,"pileupWeightDn/F");
     tree->Branch("dataMCWeight",&dataMCWeight,"dataMCWeight/F");
     tree->Branch("eventWeight",&eventWeight,"eventWeight/F");
+    tree->Branch("prefiringWeight",&prefiringWeight,"prefiringWeight/F");
     tree->Branch("crossSection",&crossSection,"crossSection/F");
 
     // Lepton variables
@@ -3824,10 +3837,12 @@ void UFHZZ4LAna::setTreeVariables( const edm::Event& iEvent, const edm::EventSet
             thisLep.SetPtEtaPhiM(lep_pt[i],lep_eta[i],lep_phi[i],lep_mass[i]);
             tempDeltaR=999.0;
             tempDeltaR=deltaR(goodJets[k].eta(),goodJets[k].phi(),thisLep.Eta(),thisLep.Phi());
+            if (verbose) cout<<" jet DeltaR between Lep"<<i<<" : "<<tempDeltaR;
             if (tempDeltaR<0.4) {
                 isclean_H4l = false;
             }
         }
+        if (verbose) cout<<endl;
 
         // check overlap with fsr photons
         unsigned int N = fsrPhotons_pt.size();
@@ -3842,11 +3857,13 @@ void UFHZZ4LAna::setTreeVariables( const edm::Event& iEvent, const edm::EventSet
             pho.SetPtEtaPhiM(fsrPhotons_pt[i],fsrPhotons_eta[i],fsrPhotons_phi[i],0.0);
             tempDeltaR=999.0;
             tempDeltaR=deltaR(goodJets[k].eta(),goodJets[k].phi(),pho.Eta(),pho.Phi());
+            if (verbose) cout<<" jet DeltaR between pho"<<i<<" : "<<tempDeltaR;
             if (tempDeltaR<0.4) {
                 isclean_H4l = false;
             }
         }
-        
+        if (verbose) cout<<endl;        
+
         //JER from database
         JME::JetParameters parameters;
         parameters.setJetPt(goodJets[k].pt());
@@ -3892,7 +3909,16 @@ void UFHZZ4LAna::setTreeVariables( const edm::Event& iEvent, const edm::EventSet
         TLorentzVector *jet_jerup = new TLorentzVector(jercorrup*goodJets[k].px(),jercorrup*goodJets[k].py(),jercorrup*goodJets[k].pz(),jercorrup*goodJets[k].energy());
         TLorentzVector *jet_jerdn = new TLorentzVector(jercorrdn*goodJets[k].px(),jercorrdn*goodJets[k].py(),jercorrdn*goodJets[k].pz(),jercorrdn*goodJets[k].energy());
 
-        if (verbose) cout<<"Jet nominal: "<<goodJets[k].pt()<<" JER corrected: "<<jet_jer->Pt()<<" JER up: "<<jet_jerup->Pt()<<" JER dn: "<<jet_jerdn->Pt()<<std::endl;
+
+        bool passPU_;
+        if (doJEC && (year==2017 || year==2018)) {
+            passPU_ = bool(goodJets[k].userInt("pileupJetIdUpdated:fullId") & (1 << 0));
+        } else {
+            passPU_ = bool(goodJets[k].userInt("pileupJetId:fullId") & (1 << 0));
+        }
+        if(!(passPU_ || !doPUJetID || jet_jer->Pt()>50)) continue;
+
+        if (verbose) cout<<"Jet nominal: "<<goodJets[k].pt()<<" JER corrected: "<<jet_jer->Pt()<<" JER up: "<<jet_jerup->Pt()<<" JER dn: "<<jet_jerdn->Pt()<<" check Delta between jet and lep / pho: "<<isclean_H4l<<std::endl;
 
         jecunc->setJetPt(jet_jer->Pt());
         jecunc->setJetEta(goodJets[k].eta());
@@ -3928,7 +3954,7 @@ void UFHZZ4LAna::setTreeVariables( const edm::Event& iEvent, const edm::EventSet
             jet_eta.push_back(jet_jer->Eta());
             jet_phi.push_back(jet_jer->Phi());
             jet_mass.push_back(jet_jer->M());
-            if (doJEC) {
+            if (doJEC && (year==2017 || year==2018)) {
                 jet_pumva.push_back(goodJets[k].userFloat("pileupJetIdUpdated:fullDiscriminant"));
             } else {
                 jet_pumva.push_back(goodJets[k].userFloat("pileupJetId:fullDiscriminant"));

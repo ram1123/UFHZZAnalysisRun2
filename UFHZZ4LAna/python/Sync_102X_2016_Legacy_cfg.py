@@ -22,16 +22,26 @@ process.Timing = cms.Service("Timing",
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 myfilelist = cms.untracked.vstring(
-'/store/mc/RunIISummer16MiniAODv2/GluGluHToZZTo4L_M125_13TeV_powheg2_JHUGenV709_pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/20000/1A5C54BE-BED3-E711-B0A4-44A84224053C.root'
+'/store/mc/RunIISummer16MiniAODv2/GluGluHToZZTo4L_M125_13TeV_powheg2_JHUGenV709_pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/20000/8A6DC1B7-D1D3-E711-8D88-002590DE6E32.root',
+'/store/mc/RunIISummer16MiniAODv2/ttH_HToZZ_4LFilter_M125_13TeV_powheg2_JHUGenV709_pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/30000/CCDA7461-FDD7-E711-AFA4-008CFAF2224C.root',
+'/store/mc/RunIISummer16MiniAODv2/ZH_HToZZ_4LFilter_M125_13TeV_powheg2-minlo-HZJ_JHUGenV709_pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/20000/622DA168-2DD2-E711-AE8A-E0071B7A5650.root',
+##'/store/mc/RunIISummer16MiniAODv2/GluGluHToZZTo4L_M125_13TeV_powheg2_JHUGenV709_pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/20000/8A6DC1B7-D1D3-E711-8D88-002590DE6E32.root',
+##'/store/mc/RunIISummer16MiniAODv2/ttH_HtoZZ_4LFilter_M125_13TeV_powheg2_JHUGenV709_pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/30000/D06A30FF-5AD8-E711-9228-0026B927869F.root',
+##'/store/mc/RunIISummer16MiniAODv3/VBF_HToZZTo4L_M125_13TeV_powheg2_JHUGenV709_pythia8/MINIAODSIM/PUMoriond17_94X_mcRun2_asymptotic_v3_ext1-v1/00000/624CEAF0-050D-E911-AB2B-0242AC130002.root',
+#'/store/mc/RunIISummer16MiniAODv2/GluGluHToZZTo4L_M125_13TeV_powheg2_JHUGenV709_pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/20000/1A5C54BE-BED3-E711-B0A4-44A84224053C.root'
 )
 
 process.source = cms.Source("PoolSource",fileNames = myfilelist,
 #                            duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
 #                            eventsToProcess = cms.untracked.VEventRange('1:679835-1:679835','1:902899-1:902899','1:905104-1:905104','1:972090-1:972090','1:908104-1:908104','1:949166-1:949166')
+                            #eventsToProcess = cms.untracked.VEventRange('1:110266-1:110266','1:5828-1:5828', '1:181693-1:181693')
+#                            eventsToProcess = cms.untracked.VEventRange('1:110266-1:110266'),
+                            #eventsToProcess = cms.untracked.VEventRange('1:5828-1:5828'),
+                            #eventsToProcess = cms.untracked.VEventRange('1:467446-1:467446'),
                             )
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string("Sync_102X_2016_v2_.root")
+                                   fileName = cms.string("Sync_102X_2016_gghtthzh_v3_.root")
 )
 
 # clean muons by segments 
@@ -156,6 +166,62 @@ process.calibratedPatElectrons.src = cms.InputTag("slimmedElectrons")
 # FSR Photons
 process.load('UFHZZAnalysisRun2.FSRPhotons.fsrPhotons_cff')
 
+from RecoJets.JetProducers.PileupJetIDParams_cfi import full_80x_chs
+from RecoJets.JetProducers.PileupJetIDCutParams_cfi import full_80x_chs_wp
+from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
+
+if (True):
+    # JEC corrections
+    jecLevels = None
+    jecLevels = [ 'L1FastJet', 'L2Relative', 'L3Absolute' ]
+    
+    btagVector = [
+        'pfDeepFlavourJetTags:probb',
+        'pfDeepFlavourJetTags:probbb',
+        'pfDeepFlavourJetTags:problepb',
+        'pfDeepFlavourJetTags:probc',
+        'pfDeepFlavourJetTags:probuds',
+        'pfDeepFlavourJetTags:probg',
+        'pfDeepCSVJetTags:probudsg',
+        'pfDeepCSVJetTags:probb',
+        'pfDeepCSVJetTags:probc',
+        'pfDeepCSVJetTags:probbb'
+    ]
+
+    updateJetCollection(
+        process,
+        jetSource = cms.InputTag('slimmedJets'),
+        pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+        svSource = cms.InputTag('slimmedSecondaryVertices'),
+        jetCorrections = ('AK4PFchs', cms.vstring(jecLevels), 'None'),
+        btagDiscriminators = btagVector,
+        postfix = 'WithDeepInfo'
+    )
+
+    #updateJetCollection(
+    #    process,
+    #    jetSource = cms.InputTag('slimmedJets'),
+    #    pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+    #    svSource = cms.InputTag('slimmedSecondaryVertices'),
+    #    jetCorrections = ('AK8PFchs', cms.vstring(jecLevels), 'None'),
+    #    btagDiscriminators = btagVector,
+    #    postfix = 'WithDeepInfo'
+    #)
+
+
+    process.jetSequence = cms.Sequence(process.patJetCorrFactorsWithDeepInfo 
+                                       *process.updatedPatJetsWithDeepInfo 
+                                       *process.pfImpactParameterTagInfosWithDeepInfo 
+                                       *process.pfInclusiveSecondaryVertexFinderTagInfosWithDeepInfo 
+                                       *process.pfDeepCSVTagInfosWithDeepInfo
+                                       *process.pfDeepCSVJetTagsWithDeepInfo 
+                                       *process.pfDeepFlavourTagInfosWithDeepInfo
+                                       *process.pfDeepFlavourJetTagsWithDeepInfo 
+                                       *process.patJetCorrFactorsTransientCorrectedWithDeepInfo 
+                                       *process.updatedPatJetsTransientCorrectedWithDeepInfo
+    )
+
+
 import os
 # Jet Energy Corrections
 from CondCore.DBCommon.CondDBSetup_cfi import *
@@ -193,7 +259,8 @@ process.es_prefer_jec = cms.ESPrefer("PoolDBESSource",'jec')
 process.load("PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff")
 
 process.jetCorrFactors = process.updatedPatJetCorrFactors.clone(
-    src = cms.InputTag("slimmedJets"),
+    ##src = cms.InputTag("slimmedJets"),
+    src = cms.InputTag("updatedPatJetsTransientCorrectedWithDeepInfo"),
     levels = ['L1FastJet', 
               'L2Relative', 
               'L3Absolute'],
@@ -201,31 +268,39 @@ process.jetCorrFactors = process.updatedPatJetCorrFactors.clone(
 
 process.AK8PFJetCorrFactors = process.updatedPatJetCorrFactors.clone(
     src = cms.InputTag("slimmedJetsAK8"),
+    ##src = cms.InputTag("updatedPatJetsTransientCorrectedWithDeepInfo"),
     levels = ['L1FastJet',
               'L2Relative',
               'L3Absolute'],
     payload = 'AK8PFchs' )
 
 process.slimmedJetsJEC = process.updatedPatJets.clone(
-    jetSource = cms.InputTag("slimmedJets"),
-    jetCorrFactorsSource = cms.VInputTag(cms.InputTag("jetCorrFactors"))
+    #jetSource = cms.InputTag("slimmedJets"),
+    jetSource = cms.InputTag("updatedPatJetsTransientCorrectedWithDeepInfo"),
+    jetCorrFactorsSource = cms.VInputTag(cms.InputTag("jetCorrFactors")),
+    addBTagInfo          = cms.bool(True), 
+    addDiscriminators    = cms.bool(True)   ## addition of btag discriminators
     )
 
 process.slimmedJetsAK8JEC = process.updatedPatJets.clone(
     jetSource = cms.InputTag("slimmedJetsAK8"),
+    ##jetSource = cms.InputTag("updatedPatJetsTransientCorrectedWithDeepInfo"),
     jetCorrFactorsSource = cms.VInputTag(cms.InputTag("AK8PFJetCorrFactors"))
+    #addBTagInfo          = cms.bool(True), 
+    #addDiscriminators    = cms.bool(True)   ## addition of btag discriminators
     )
 
 ### add pileup id and discriminant to patJetsReapplyJEC
-process.load("RecoJets.JetProducers.PileupJetID_cfi")
-process.pileupJetIdUpdated = process.pileupJetId.clone(
-    jets=cms.InputTag("slimmedJets"),
-    inputIsCorrected=False,
-    applyJec=True,
-    vertexes=cms.InputTag("offlineSlimmedPrimaryVertices")
-)
-process.slimmedJetsJEC.userData.userFloats.src += ['pileupJetIdUpdated:fullDiscriminant']
-process.slimmedJetsJEC.userData.userInts.src += ['pileupJetIdUpdated:fullId']
+##2016 will apply updateJetCollection instead pileupJetIdUpdated
+##process.load("RecoJets.JetProducers.PileupJetID_cfi")
+##process.pileupJetIdUpdated = process.pileupJetId.clone(
+##    jets=cms.InputTag("slimmedJets"),
+##    inputIsCorrected=False,
+##    applyJec=True,
+##    vertexes=cms.InputTag("offlineSlimmedPrimaryVertices")
+##)
+##process.slimmedJetsJEC.userData.userFloats.src += ['pileupJetIdUpdated:fullDiscriminant']
+##process.slimmedJetsJEC.userData.userInts.src += ['pileupJetIdUpdated:fullId']
 
 
 # JER
@@ -256,48 +331,6 @@ process.jer = cms.ESSource("PoolDBESSource",
             )
         )
 process.es_prefer_jer = cms.ESPrefer('PoolDBESSource', 'jer')
-
-from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
-
-if ('true'):
-    # JEC corrections
-    jecLevels = None
-    jecLevels = [ 'L1FastJet', 'L2Relative', 'L3Absolute' ]
-    
-    btagVector = [
-        'pfDeepFlavourJetTags:probb',
-        'pfDeepFlavourJetTags:probbb',
-        'pfDeepFlavourJetTags:problepb',
-        'pfDeepFlavourJetTags:probc',
-        'pfDeepFlavourJetTags:probuds',
-        'pfDeepFlavourJetTags:probg',
-        'pfDeepCSVJetTags:probudsg',
-        'pfDeepCSVJetTags:probb',
-        'pfDeepCSVJetTags:probc',
-        'pfDeepCSVJetTags:probbb'
-    ]
-
-    updateJetCollection(
-        process,
-        jetSource = cms.InputTag('slimmedJets'),
-        pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
-        svSource = cms.InputTag('slimmedSecondaryVertices'),
-        jetCorrections = ('AK4PFchs', cms.vstring(jecLevels), 'None'),
-        btagDiscriminators = btagVector,
-        postfix = 'WithDeepInfo'
-    )
-
-    process.jetSequence = cms.Sequence(process.patJetCorrFactorsWithDeepInfo 
-                                       *process.updatedPatJetsWithDeepInfo 
-                                       *process.pfImpactParameterTagInfosWithDeepInfo 
-                                       *process.pfInclusiveSecondaryVertexFinderTagInfosWithDeepInfo 
-                                       *process.pfDeepCSVTagInfosWithDeepInfo
-                                       *process.pfDeepCSVJetTagsWithDeepInfo 
-                                       *process.pfDeepFlavourTagInfosWithDeepInfo
-                                       *process.pfDeepFlavourJetTagsWithDeepInfo 
-                                       *process.patJetCorrFactorsTransientCorrectedWithDeepInfo 
-                                       *process.updatedPatJetsTransientCorrectedWithDeepInfo
-    )
 
 
 #QGTag
@@ -341,6 +374,13 @@ from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMet
 runMetCorAndUncFromMiniAOD(process,
             isData=False,
             )
+
+from PhysicsTools.PatUtils.l1ECALPrefiringWeightProducer_cfi import l1ECALPrefiringWeightProducer
+process.prefiringweight = l1ECALPrefiringWeightProducer.clone(
+    DataEra = cms.string("2016BtoH"), #Use 2016BtoH for 2016 2017BtoF foe 2017
+    UseJetEMPt = cms.bool(False),
+    PrefiringRateSystematicUncty = cms.double(0.2),
+    SkipWarnings = False)
 
 # STXS
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
@@ -459,7 +499,7 @@ process.p = cms.Path(process.fsrPhotonSequence*
                      process.calibratedPatElectrons*
                      process.jetSequence*
                      process.jetCorrFactors*
-                     process.pileupJetIdUpdated*
+                     #process.pileupJetIdUpdated*
                      process.slimmedJetsJEC*
                      process.QGTagger*
                      process.AK8PFJetCorrFactors*
@@ -467,5 +507,6 @@ process.p = cms.Path(process.fsrPhotonSequence*
                      process.fullPatMetSequence*
                      process.corrJets*
                      process.mergedGenParticles*process.myGenerator*process.rivetProducerHTXS*#process.rivetProducerHZZFid*
+                     process.prefiringweight*
                      process.Ana
                      )

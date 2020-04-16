@@ -24,7 +24,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 myfilelist = cms.untracked.vstring(
 '/store/mc/RunIIFall17MiniAODv2/GluGluHToZZTo4L_M125_13TeV_powheg2_JHUGenV7011_pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14_ext1-v1/10000/F0ABD15B-AF42-E811-B204-00144F45BD0E.root',
-'/store/mc/RunIIFall17MiniAODv2/ttH_HtoZZ_4LFilter_M125_13TeV_powheg2_JHUGenV7011_pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v2/110000/848B0F3E-53BA-E811-80A3-A4BF0112BD7E.root',
+'/store/mc/RunIIFall17MiniAODv2/ttH_HToZZ_4LFilter_M125_13TeV_powheg2_JHUGenV7011_pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v2/110000/E852BBDD-1EB4-E811-81D5-FA163EE7A24E.root',
 '/store/mc/RunIIFall17MiniAODv2/VBF_HToZZTo4L_M125_13TeV_powheg2_JHUGenV7011_pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14_ext2-v2/260000/1E7BEDB3-5859-E911-8751-FA163E5522F8.root',
 #'/store/mc/RunIIFall17MiniAODv2/VBF_HToZZTo4L_M125_13TeV_powheg2_JHUGenV7011_pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14_ext1-v1/70000/D6115C50-2E44-E811-90D0-0CC47A78A41C.root',
 #'/store/mc/RunIIFall17MiniAODv2/VBF_HToZZTo4L_M125_13TeV_powheg2_JHUGenV7011_pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/60000/3450B123-E8BF-E811-B895-FA163E9604CF.root',
@@ -37,10 +37,11 @@ process.source = cms.Source("PoolSource",fileNames = myfilelist,
 #                            duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
 #                            eventsToProcess = cms.untracked.VEventRange('1:47582-1:47582')##4e
 #                            eventsToProcess = cms.untracked.VEventRange('1:203015-1:203015')##2e2mu
+#                            eventsToProcess = cms.untracked.VEventRange('1:641744-1:641744')
                             )
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string("Sync_102X_2017_gghvbftth_v3_JET_correctPt50_V3.root")
+                                   fileName = cms.string("Sync_102X_2017_gghvbftth_v3_JET_correctPt50_V5.root")
 )
 
 # clean muons by segments 

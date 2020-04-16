@@ -1635,7 +1635,7 @@ UFHZZ4LAna::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                     lep_genindex.push_back(-1.0);
                 }
                 if (verbose) {cout<<" eta: "<<lep_eta[i]<<" phi: "<<lep_phi[i];
-                              cout<<" eSuperClusterOverP: "<<recoElectrons[lep_ptindex[i]].eSuperClusterOverP()<<" ecalEnergy: "<<recoElectrons[lep_ptindex[i]].ecalEnergy()<<" p: "<<recoElectrons[lep_ptindex[i]].p();
+                              if(abs(lep_ptid[i])==11)  cout<<" eSuperClusterOverP: "<<recoElectrons[lep_ptindex[i]].eSuperClusterOverP()<<" ecalEnergy: "<<recoElectrons[lep_ptindex[i]].ecalEnergy()<<" p: "<<recoElectrons[lep_ptindex[i]].p();
                               cout<<" RelIso: "<<lep_RelIso[i]<<" isoCH: "<<lep_isoCH[i]<<" isoNH: "<<lep_isoNH[i]
                                   <<" isoPhot: "<<lep_isoPhot[i]<<" lep_isoPU: "<<lep_isoPU[i]<<" isoPUcorr: "<<lep_isoPUcorr[i]<<" Sip: "<<lep_Sip[i]
                                   <<" MiniIso: "<<lep_MiniIso[i]<<" ptRatio: "<<lep_ptRatio[i]<<" ptRel: "<<lep_ptRel[i]<<" lep_mva: "<<lep_mva[i];
@@ -1645,6 +1645,7 @@ UFHZZ4LAna::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                               cout<<" dataMC: "<<lep_dataMC[i]<<" dataMCErr: "<<lep_dataMCErr[i];
                               cout<<" lep_pterr: "<<lep_pterr[i]<<" lep_pterrold: "<<lep_pterrold[i]<<" lep_tightIdHiPt: "<<lep_tightIdHiPt[i]<<endl;
                               if((abs(lep_ptid[i])==13)&&lep_pt[i]>200)    cout<<"Muon pt over 200 isTrackerHighPtID? "<<helper.isTrackerHighPt(recoMuons[lep_ptindex[i]],PV)<<endl;}
+            
             }
             
             if (verbose) cout<<"adding taus to sorted list"<<endl;           
@@ -1989,7 +1990,8 @@ UFHZZ4LAna::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                         if (verbose) cout<<"passed pf jet id and pu jet id"<<endl;
                         
                         // apply loose pt cut here (10 GeV cut is already applied in MINIAOD) since we are before JES/JER corrections
-                        if(jet.pt() > 10.0 && fabs(jet.eta()) < jeteta_cut) {
+                        //if(jet.pt() > 10.0 && fabs(jet.eta()) < jeteta_cut) {
+                        if(fabs(jet.eta()) < jeteta_cut) { ///move all pt cut after JES/JER corrections
                             
                             // apply scale factor for PU Jets by demoting 1-data/MC % of jets jets in certain pt/eta range 
                             // Configured now that SF is 1.0
@@ -2142,11 +2144,11 @@ UFHZZ4LAna::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                     } else {
                         dataMCWeight = 1.0;
                     }
-                    eventWeight = crossSection*pileupWeight*dataMCWeight;
+                    eventWeight = crossSection*pileupWeight*dataMCWeight*prefiringWeight;
                     
                         
                     dataMCWeight = lep_dataMC[lep_Hindex[0]]*lep_dataMC[lep_Hindex[1]]*lep_dataMC[lep_Hindex[2]]*lep_dataMC[lep_Hindex[3]];
-                    eventWeight = genWeight*crossSection*pileupWeight*dataMCWeight;
+                    eventWeight = genWeight*crossSection*pileupWeight*dataMCWeight*prefiringWeight;
                     
                     if (verbose) cout<<"Kin fitter begin with lep size "<<selectedLeptons.size()<<" fsr size "<<selectedFsrMap.size()<<endl;
                     
@@ -3862,7 +3864,7 @@ void UFHZZ4LAna::setTreeVariables( const edm::Event& iEvent, const edm::EventSet
                 isclean_H4l = false;
             }
         }
-        if (verbose) cout<<endl;        
+        if (N>0&&verbose) cout<<endl;        
 
         //JER from database
         JME::JetParameters parameters;
@@ -3917,6 +3919,7 @@ void UFHZZ4LAna::setTreeVariables( const edm::Event& iEvent, const edm::EventSet
             passPU_ = bool(goodJets[k].userInt("pileupJetId:fullId") & (1 << 0));
         }
         if(!(passPU_ || !doPUJetID || jet_jer->Pt()>50)) continue;
+        if(jet_jer->Pt()<10) continue;
 
         if (verbose) cout<<"Jet nominal: "<<goodJets[k].pt()<<" JER corrected: "<<jet_jer->Pt()<<" JER up: "<<jet_jerup->Pt()<<" JER dn: "<<jet_jerdn->Pt()<<" check Delta between jet and lep / pho: "<<isclean_H4l<<std::endl;
 

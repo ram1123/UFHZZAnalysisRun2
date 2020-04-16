@@ -1990,7 +1990,8 @@ UFHZZ4LAna::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                         if (verbose) cout<<"passed pf jet id and pu jet id"<<endl;
                         
                         // apply loose pt cut here (10 GeV cut is already applied in MINIAOD) since we are before JES/JER corrections
-                        if(jet.pt() > 10.0 && fabs(jet.eta()) < jeteta_cut) {
+                        //if(jet.pt() > 10.0 && fabs(jet.eta()) < jeteta_cut) {
+                        if(fabs(jet.eta()) < jeteta_cut) { ///move all pt cut after JES/JER corrections
                             
                             // apply scale factor for PU Jets by demoting 1-data/MC % of jets jets in certain pt/eta range 
                             // Configured now that SF is 1.0
@@ -2143,11 +2144,11 @@ UFHZZ4LAna::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                     } else {
                         dataMCWeight = 1.0;
                     }
-                    eventWeight = crossSection*pileupWeight*dataMCWeight;
+                    eventWeight = crossSection*pileupWeight*dataMCWeight*prefiringWeight;
                     
                         
                     dataMCWeight = lep_dataMC[lep_Hindex[0]]*lep_dataMC[lep_Hindex[1]]*lep_dataMC[lep_Hindex[2]]*lep_dataMC[lep_Hindex[3]];
-                    eventWeight = genWeight*crossSection*pileupWeight*dataMCWeight;
+                    eventWeight = genWeight*crossSection*pileupWeight*dataMCWeight*prefiringWeight;
                     
                     if (verbose) cout<<"Kin fitter begin with lep size "<<selectedLeptons.size()<<" fsr size "<<selectedFsrMap.size()<<endl;
                     
@@ -3863,7 +3864,7 @@ void UFHZZ4LAna::setTreeVariables( const edm::Event& iEvent, const edm::EventSet
                 isclean_H4l = false;
             }
         }
-        if (verbose) cout<<endl;        
+        if (N>0&&verbose) cout<<endl;        
 
         //JER from database
         JME::JetParameters parameters;
@@ -3918,6 +3919,7 @@ void UFHZZ4LAna::setTreeVariables( const edm::Event& iEvent, const edm::EventSet
             passPU_ = bool(goodJets[k].userInt("pileupJetId:fullId") & (1 << 0));
         }
         if(!(passPU_ || !doPUJetID || jet_jer->Pt()>50)) continue;
+        if(jet_jer->Pt()<10) continue;
 
         if (verbose) cout<<"Jet nominal: "<<goodJets[k].pt()<<" JER corrected: "<<jet_jer->Pt()<<" JER up: "<<jet_jerup->Pt()<<" JER dn: "<<jet_jerdn->Pt()<<" check Delta between jet and lep / pho: "<<isclean_H4l<<std::endl;
 

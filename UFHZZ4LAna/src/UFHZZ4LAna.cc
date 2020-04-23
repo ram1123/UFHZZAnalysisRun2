@@ -988,11 +988,15 @@ UFHZZ4LAna::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (rivetfid->jets.size()>0) GENpt_leadingjet_pt30_eta4p7Rivet = rivetfid->jets[0].Pt();
     */
 
-    edm::Handle< double > theprefweight;
-    iEvent.getByToken(prefweight_token_, theprefweight ) ;
-    if (year == 2016 || year == 2017)
-        prefiringWeight =(*theprefweight);
-    else if (year == 2018)
+    if (isMC) {
+        edm::Handle< double > theprefweight;
+        iEvent.getByToken(prefweight_token_, theprefweight ) ;
+        if (year == 2016 || year == 2017)
+            prefiringWeight =(*theprefweight);
+        else if (year == 2018)
+            prefiringWeight =1.0;
+    }
+    else 
         prefiringWeight =1.0;
 
     // ============ Initialize Variables ============= //
@@ -1293,6 +1297,7 @@ UFHZZ4LAna::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     if(isMC) {
         float tmpWeight = genEventInfo->weight();
         genWeight = (tmpWeight > 0 ? 1.0 : -1.0);
+        if (verbose) {cout<<"tmpWeight: "<<tmpWeight<<"; genWeight: "<<genWeight<<endl;}
         double rms = 0.0;
 
         //std::cout<<"tmpWeight: "<<tmpWeight<<std::endl;
@@ -2969,9 +2974,11 @@ UFHZZ4LAna::findHiggsCandidate(std::vector< pat::Muon > &selectedMuons, std::vec
             // Do not include FSR photons
             vector<double> allM;
             TLorentzVector i1i2;
+            TLorentzVector _4l_temp;
             i1i2 = (lep_i1_nofsr)+(lep_i2_nofsr); allM.push_back(i1i2.M());
             TLorentzVector j1j2;
             j1j2 = (lep_j1_nofsr)+(lep_j2_nofsr); allM.push_back(j1j2.M());            
+             _4l_temp = Z1 + Z2;
 
             if (lep_id[i1]*lep_id[j1]<0) {
                 TLorentzVector i1j1;
@@ -3013,6 +3020,8 @@ UFHZZ4LAna::findHiggsCandidate(std::vector< pat::Muon > &selectedMuons, std::vec
             
             if (verbose) cout<<" massZ1: "<<Z1.M()<<" massZ2: "<<Z2.M()<<endl;
             if ( (Z1.M() < mZ1Low) || (Z1.M() > mZ1High) || (Z2.M() < mZ2Low) || (Z2.M() > mZ2High) ) continue;
+            if (verbose) cout<<" mass4l: "<<_4l_temp.M()<<endl;
+            if ( _4l_temp.M() < m4lLowCut ) continue;
 
             // Signal region if Z2 leptons are both tight ID Iso
             bool signalRegion=true;
@@ -3096,7 +3105,6 @@ UFHZZ4LAna::findHiggsCandidate(std::vector< pat::Muon > &selectedMuons, std::vec
             if (signalRegion) { // Signal Region has priority
                 
                 if (!foundSRCandidate) same4l=false;                
-
                 if ( (bestCandMela && ((!same4l && D_bkg_kin_tmp>max_D_bkg_kin_SR) || (same4l && Z1DeltaM<=minZ1DeltaM_SR))) 
                      || (!bestCandMela && Z1DeltaM<=minZ1DeltaM_SR) ) {                 
                 //if ( (!same4l && D_bkg_kin_tmp>max_D_bkg_kin_SR) || (same4l && Z1DeltaM<=minZ1DeltaM_SR) ) {
@@ -3119,7 +3127,7 @@ UFHZZ4LAna::findHiggsCandidate(std::vector< pat::Muon > &selectedMuons, std::vec
                     massZ1 = Z1Vec.M(); massZ2 = Z2Vec.M(); mass4l = HVec.M();
                     
                     if (verbose) cout<<" new best candidate SR: mass4l: "<<HVec.M()<<endl;
-                    if (HVec.M()>m4lLowCut)  {
+                    if (HVec.M()>m4lLowCut)  {  //m4lLowCut move forward
                         foundHiggsCandidate=true;                    
                         foundSRCandidate=true;
                     }
@@ -3149,7 +3157,7 @@ UFHZZ4LAna::findHiggsCandidate(std::vector< pat::Muon > &selectedMuons, std::vec
                     massZ1 = Z1Vec.M(); massZ2 = Z2Vec.M(); mass4l = HVec.M();
 
                     if (verbose) cout<<" new best candidate CR: mass4l: "<<HVec.M()<<endl;
-                    if (HVec.M()>m4lLowCut) foundHiggsCandidate=true;                    
+                    if (HVec.M()>m4lLowCut) foundHiggsCandidate=true;  //m4lLowCut move forward                  
                 }
             }
 

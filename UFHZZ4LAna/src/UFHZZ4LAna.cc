@@ -988,12 +988,14 @@ UFHZZ4LAna::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      if (rivetfid->jets.size()>0) GENpt_leadingjet_pt30_eta4p7Rivet = rivetfid->jets[0].Pt();
     */
 
-    edm::Handle< double > theprefweight;
-    iEvent.getByToken(prefweight_token_, theprefweight ) ;
-    if (year == 2016 || year == 2017)
-        prefiringWeight =(*theprefweight);
-    else if (year == 2018)
-        prefiringWeight =1.0;
+    if (isMC) {
+        edm::Handle< double > theprefweight;
+        iEvent.getByToken(prefweight_token_, theprefweight ) ;
+        if (year == 2016 || year == 2017)
+            prefiringWeight =(*theprefweight);
+        else if (year == 2018)
+            prefiringWeight =1.0;
+    }
 
     // ============ Initialize Variables ============= //
 

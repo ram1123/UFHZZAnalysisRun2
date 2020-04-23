@@ -224,7 +224,7 @@ process.AK8PFJetCorrFactors = process.updatedPatJetCorrFactors.clone(
 process.slimmedJetsJEC = process.updatedPatJets.clone(
     #jetSource = cms.InputTag("slimmedJets"),
     jetSource = cms.InputTag("updatedPatJetsTransientCorrectedWithDeepInfo"),
-    jetCorrFactorsSource = cms.VInputTag(cms.InputTag("jetCorrFactors"))
+    jetCorrFactorsSource = cms.VInputTag(cms.InputTag("jetCorrFactors")),
     addBTagInfo          = cms.bool(True),
     addDiscriminators    = cms.bool(True)   ## addition of btag discriminators
     )

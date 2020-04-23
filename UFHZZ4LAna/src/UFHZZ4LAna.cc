@@ -996,6 +996,8 @@ UFHZZ4LAna::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         else if (year == 2018)
             prefiringWeight =1.0;
     }
+    else 
+        prefiringWeight =1.0;
 
     // ============ Initialize Variables ============= //
 

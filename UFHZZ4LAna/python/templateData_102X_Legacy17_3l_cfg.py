@@ -142,8 +142,8 @@ process.jetCorrFactors = process.updatedPatJetCorrFactors.clone(
     src = cms.InputTag("slimmedJets"),
     levels = ['L1FastJet', 
               'L2Relative', 
-              'L3Absolute'
-              #'L2L3Residual'
+              'L3Absolute',
+              'L2L3Residual'
               ],
     payload = 'AK4PFchs' ) 
 
@@ -151,8 +151,8 @@ process.AK8PFJetCorrFactors = process.updatedPatJetCorrFactors.clone(
     src = cms.InputTag("slimmedJetsAK8"),
     levels = ['L1FastJet',
               'L2Relative',
-              'L3Absolute'
-              #'L2L3Residual'
+              'L3Absolute',
+              'L2L3Residual'
               ],
     payload = 'AK8PFchs' )
 
@@ -240,7 +240,7 @@ process.corrJets = cms.EDProducer ( "CorrJetsProducer",
                                     vertex  = cms.InputTag( "offlineSlimmedPrimaryVertices" ), 
                                     rho     = cms.InputTag( "fixedGridRhoFastjetAll"   ),
                                     payload = cms.string  ( "AK8PFchs" ),
-                                    isData  = cms.bool    (  False ),
+                                    isData  = cms.bool    (  True ),
                                     year = cms.untracked.int32(2017))
 
 

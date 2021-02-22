@@ -356,6 +356,12 @@ private:
     float absdeltarapidity_hleadingjet_pt30_eta4p7_jerup; float absdeltarapidity_hleadingjet_pt30_eta4p7_jerdn;
     float DijetMass, DijetDEta, DijetFisher;
 
+    // n-jettiness for additional ak4 jets
+    float Inclusive_TauB_jet0, Inclusive_TauC_jet0;
+    float Inclusive_TauB_jet1, Inclusive_TauC_jet1;
+    float TauB_sumConstituent_jet0, TauC_sumConstituent_jet0;
+    float TauB_sumConstituent_jet1, TauC_sumConstituent_jet1;
+
     // merged jets
     vector<int>   mergedjet_iscleanH4l;
     vector<float> mergedjet_pt; vector<float> mergedjet_eta; vector<float> mergedjet_phi; vector<float> mergedjet_mass;
@@ -1118,6 +1124,11 @@ UFHZZ4LAna::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     absdeltarapidity_hleadingjet_pt30_eta4p7_jerup=-1.0; absdeltarapidity_hleadingjet_pt30_eta4p7_jerdn=-1.0;
 
     DijetMass=-1.0; DijetDEta=9999.0; DijetFisher=9999.0;
+
+    Inclusive_TauB_jet0=-9999.0; Inclusive_TauC_jet0=-9999.0;
+    Inclusive_TauB_jet1=-9999.0; Inclusive_TauC_jet1=-9999.0;
+    TauB_sumConstituent_jet0 = -9999.0;  TauC_sumConstituent_jet0=-9999.0;
+    TauB_sumConstituent_jet1 = -9999.0;  TauC_sumConstituent_jet1=-9999.0;
     
     mergedjet_iscleanH4l.clear();
     mergedjet_pt.clear(); mergedjet_eta.clear(); mergedjet_phi.clear(); mergedjet_mass.clear();
@@ -2741,15 +2752,15 @@ UFHZZ4LAna::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
             LHERunInfoProduct myLHERunInfoProduct = *(run.product());
             typedef std::vector<LHERunInfoProduct::Header>::const_iterator headers_const_iterator;
             for (headers_const_iterator iter=myLHERunInfoProduct.headers_begin(); iter!=myLHERunInfoProduct.headers_end(); iter++){
-                std::cout << iter->tag() << std::endl;
+                // std::cout << iter->tag() << std::endl;
                 std::vector<std::string> lines = iter->lines();
                 for (unsigned int iLine = 0; iLine<lines.size(); iLine++) {
                     std::string pdfid=lines.at(iLine);
                     if (pdfid.substr(1,6)=="weight" && pdfid.substr(8,2)=="id") {
-                        std::cout<<pdfid<<std::endl;
+                        // std::cout<<pdfid<<std::endl;
                         std::string pdf_weight_id = pdfid.substr(12,4);
                         int pdf_weightid=atoi(pdf_weight_id.c_str());
-                        std::cout<<"parsed id: "<<pdf_weightid<<std::endl;
+                        // std::cout<<"parsed id: "<<pdf_weightid<<std::endl;
                         if (pdf_weightid==2001) {posNNPDF=int(pos);}
                         pos+=1;
                     }
@@ -3650,7 +3661,16 @@ void UFHZZ4LAna::bookPassedEventTree(TString treeName, TTree *tree)
     tree->Branch("pt_leadingjet_pt30_eta2p5_jerup",&pt_leadingjet_pt30_eta2p5_jerup,"pt_leadingjet_pt30_eta2p5_jerup/F");
     tree->Branch("pt_leadingjet_pt30_eta2p5_jerdn",&pt_leadingjet_pt30_eta2p5_jerdn,"pt_leadingjet_pt30_eta2p5_jerdn/F");
 
+    // n-jettiness
+    tree->Branch("Inclusive_TauB_jet0",&Inclusive_TauB_jet0,"Inclusive_TauB_jet0/F");
+    tree->Branch("Inclusive_TauB_jet1",&Inclusive_TauB_jet1,"Inclusive_TauB_jet1/F");
+    tree->Branch("Inclusive_TauC_jet0",&Inclusive_TauC_jet0,"Inclusive_TauC_jet0/F");
+    tree->Branch("Inclusive_TauC_jet1",&Inclusive_TauC_jet1,"Inclusive_TauC_jet1/F");
 
+    tree->Branch("TauB_sumConstituent_jet0",&TauB_sumConstituent_jet0,"TauB_sumConstituent_jet0/F");
+    tree->Branch("TauB_sumConstituent_jet1",&TauB_sumConstituent_jet1,"TauB_sumConstituent_jet1/F");
+    tree->Branch("TauC_sumConstituent_jet0",&TauC_sumConstituent_jet0,"TauC_sumConstituent_jet0/F");
+    tree->Branch("TauC_sumConstituent_jet1",&TauC_sumConstituent_jet1,"TauC_sumConstituent_jet1/F");
     // merged jets
     tree->Branch("mergedjet_iscleanH4l",&mergedjet_iscleanH4l);
     tree->Branch("mergedjet_pt",&mergedjet_pt);
@@ -3825,6 +3845,55 @@ void UFHZZ4LAna::setTreeVariables( const edm::Event& iEvent, const edm::EventSet
 
     // Jet Info
     double tempDeltaR = 999.0;
+    // Inclusive_TauB
+    // Inclusive_TauC
+
+    for (unsigned int i = 0; i < 1; ++i)
+    {
+        // std::cout << " --> " << i << ",\t size = " << goodJets[i].getPFConstituents().size() << std::endl;
+        // std::cout << "\n ----> " << i << ",\t Number of daughters = " << goodJets[i].numberOfDaughters() << std::endl;
+        // cout<<"jet pt: "<<goodJets[i].pt()<<",  eta: "<<goodJets[i].eta()<<", phi: "<<goodJets[i].phi()<<endl;
+        // std::vector<auto const> v;
+        float temp_TauB=0.0;
+        float temp_TauC=0.0;
+        for ( auto const & constituent : goodJets[i].daughterPtrVector()) {
+            // std::cout << constituent->energy() << std::endl;
+            temp_TauB += constituent->energy() - constituent->pz();
+            temp_TauC += ( (constituent->pt()*constituent->pt()) + constituent->mass()*constituent->mass() )/(2.0*constituent->energy());
+        }
+        TauB_sumConstituent_jet0 = temp_TauB;
+        TauC_sumConstituent_jet0 = temp_TauC;
+        Inclusive_TauB_jet0 = goodJets[i].energy() - goodJets[i].pz();
+        Inclusive_TauC_jet0 = ( (goodJets[i].pt()*goodJets[i].pt()) + goodJets[i].mass()*goodJets[i].mass() )/(2.0*goodJets[i].energy());
+        // for(unsigned int j=0;j<goodJets[i].getPFConstituents().size();++j)
+        // {
+        //     std::cout << goodJets[i].getPFConstituents().at(j)->pt() << std::endl;
+        // }
+    }
+
+    for (unsigned int i = 1; i < 2; ++i)
+    {
+        // std::cout << " --> " << i << ",\t size = " << goodJets[i].getPFConstituents().size() << std::endl;
+        // std::cout << "\n ----> " << i << ",\t Number of daughters = " << goodJets[i].numberOfDaughters() << std::endl;
+        // cout<<"jet pt: "<<goodJets[i].pt()<<",  eta: "<<goodJets[i].eta()<<", phi: "<<goodJets[i].phi()<<endl;
+        // std::vector<auto const> v;
+        float temp_TauB=0.0;
+        float temp_TauC=0.0;
+        for ( auto const & constituent : goodJets[i].daughterPtrVector()) {
+            // std::cout << constituent->energy() << std::endl;
+            temp_TauB += constituent->energy() - constituent->pz();
+            temp_TauC += ( (constituent->pt()*constituent->pt()) + constituent->mass()*constituent->mass() )/(2.0*constituent->energy());
+        }
+        TauB_sumConstituent_jet1 = temp_TauB;
+        TauC_sumConstituent_jet1 = temp_TauC;
+        Inclusive_TauB_jet1 = goodJets[i].energy() - goodJets[i].pz();
+        Inclusive_TauC_jet1 = ( (goodJets[i].pt()*goodJets[i].pt()) + goodJets[i].mass()*goodJets[i].mass() )/(2.0*goodJets[i].energy());
+        // for(unsigned int j=0;j<goodJets[i].getPFConstituents().size();++j)
+        // {
+        //     std::cout << goodJets[i].getPFConstituents().at(j)->pt() << std::endl;
+        // }
+    }
+
     for( unsigned int k = 0; k < goodJets.size(); k++) {
 
         if (verbose) cout<<"jet pt: "<<goodJets[k].pt()<<" eta: "<<goodJets[k].eta()<<" phi: "<<goodJets[k].phi()<<endl;
